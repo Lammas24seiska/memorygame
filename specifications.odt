@@ -1,0 +1,74 @@
+Memory Game
+1. Introduction
+1.1 Purpose
+The purpose of this document is to define the specifications for a memory-based game inspired by Simon Says. Players must recall and replicate a sequence of sounds made by monsters arranged in a circular formation. Each round, a new sound is added to the sequence, increasing the challenge. The game includes difficulty settings, language options, and a high score tracking system.
+
+1.2 intended audience
+This document is intended for game developers, designers, testers, and stakeholders involved in the development of the Simon Says memory game.
+
+1.3 Intended use
+The game is designed for entertainment and cognitive skill development, improving memory and pattern recognition. It is intended for casual players across different age groups.
+
+1.4 Product scope
+-Monsters positioned in a circle, each capable of making a unique sound.
+-A sequence-based memory challenge where players replicate sounds in order.
+-Increasing difficulty with additional monsters and longer sequences.
+-Score tracking, high scores, and difficulty adjustments.
+-Multi-language support and a credits section.
+
+1.5 Definitions and acronyms
+-Sequence: The ordered set of monsters making sounds that players must replicate.
+-Cycle: A full round where each monster in the circle bobs up and down in sequence.
+-Difficulty Level: The setting that determines the number of monsters in play.
+-UI: User Interface.
+-High Score: The longest sequence successfully completed by the player in the game session.
+-JS: JavaScript.
+-DOM: Document Object Model.
+
+
+2. Overall description
+2.1 User needs
+-Players require an engaging and intuitive memory-based challenge.
+-The game should provide clear visual and auditory feedback.
+-Players should have the ability to adjust the difficulty level.
+-Score tracking should be visible and persistent throughout the session.
+-Language options should be available for accessibility and language button should change all text to chosen language.
+-Credits should be available through the button (Sprite makers should be  credited)
+-The game should be playable on modern web browsers without additional software.
+2.2 Assumptions and dependencies
+-The game will run on modern web browsers (Chrome, Firefox, Edge, Safari).
+-The game will be built using vanilla JavaScript, HTML, and CSS.
+
+3. System features and requirements
+3.1 Functional requirements
+-The game must display monsters arranged in a circular formation and the amount of monsters in the circle is easily modifiable in code.
+-Each round, one additional monster is added to the sequence but the amount of monsters on screen stays the same.
+-The monsters bob up and down in a set order, with one making a sound on their turn per each cycle.
+-Players must click the monsters in the correct sequence to proceed.
+-A difficulty setting must adjust the number of monsters on the screen.
+-A score and high score must be displayed on the screen
+-A credits button must be available.
+-The game must support multiple languages.
+-The game must be implemented using JavaScript for logic and interactions without any serverside requirements.
+
+3.2 External interface requirements
+-The game must have a graphical interface displaying monsters in a circle using HTML and CSS.
+-The game must provide sound effects corresponding to each monster.
+-It must support input through mouse clicks.
+-The game should be responsive and work on all desctop screen sizes.
+
+3.3 System features
+-Gameplay Mechanics: The game must follow a repeating cycle where monsters animate in order, with one making a sound per cycle.
+-Difficulty Adjustment: More monsters are included in higher difficulty settings.
+-Scoring System: Tracks the current sequence length and the highest achieved sequence.
+-User Interface: Displays the sequence, score, high score, difficulty options, language settings, and a credits button.
+-Animation: Monsters bob up and down, with a unique animation for those in the sequence.
+-Web-Based Implementation: The game runs directly in the browser using JavaScript, HTML, and CSS.
+
+3.4 Nonfunctional requirements
+-Performance: The game should run smoothly on modern web browsers.
+-Accessibility: Language options should be available.
+-Usability: The UI should be intuitive and visually appealing.
+-Reliability: The game should correctly track sequences and scores.
+-Scalability: The game should support multiple difficulty levels and possible expansions.
+-Compatibility: The game must be compatible with modern web browsers without requiring additional plugins or software.
