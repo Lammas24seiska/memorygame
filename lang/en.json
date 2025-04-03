@@ -1,0 +1,17 @@
+{
+    "title": "Memory Game",
+    "start-button": "Start Game",
+    "stop-button": "Stop Game",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "credits": "Credits: ",
+    "author": "Game made by: Aarni Akkala",
+    "sprites": "Monster sprites: ",
+    "help": "Help: ",
+    "help-text1": "First the monsters give you a sequence which you need to remember.",
+    "help-text2": "Then you need to repeat the sequence by clicking on the monsters in the correct order.",
+    "help-text3": "If you get the sequence right, the monsters will give you a new sequence.",
+    "credits-button": "Credits",
+    "help-button": "Help"
+}

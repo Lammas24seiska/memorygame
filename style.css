@@ -18,12 +18,15 @@ body {
     text-align: center;
     font-size: 18px;
     box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;    
 }
 
 #game-area {
     width: 100%;
     height: calc(100vh - 160px);
-    background-color: #fff;
+    background-color: #979191;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
@@ -38,6 +41,10 @@ body {
     text-align: center;
     padding: 10px;
     box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 35px;
 }
 
 #monster-container {
@@ -48,3 +55,45 @@ body {
     overflow: hidden;
 
 }
+
+button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+}
+button:hover {
+    background-color: #45a049;
+}
+
+select {
+    width: 200px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin: 10px 0;
+}
+
+#credit-overlay, #help-overlay {
+    position: absolute;
+    top: 80px;
+    bottom: 80px;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    font-size: 24px;
+}
+

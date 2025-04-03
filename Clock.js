@@ -4,20 +4,22 @@ class Clock {
     constructor(interval) {
         this.interval = interval; 
         this.subscribers = [];
+        this.on = false;
     }
 
     start() {
+        this.on = true;
         this.timer = setInterval(() => {
             this.tick();
         }, this.interval);
     }
 
     stop() {
+        this.on = false;
         clearInterval(this.timer);
     }
 
     tick() {
-        console.log("Tick");
         this.subscribers.sort((a, b) => b.priority - a.priority);
         this.subscribers.forEach(subscriber => subscriber.callback());
     }
@@ -38,9 +40,7 @@ class Clock {
         this.interval = newInterval;
         this.stop();
         this.start();
-    }
-
-    
+    }    
 }
 
 export default Clock;

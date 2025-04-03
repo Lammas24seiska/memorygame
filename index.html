@@ -4,14 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Memory Game</title>
+    <title trans="title">Memory Game</title>
 </head>
 <body>
-    <div id="top-bar"></div>
+    <div id="top-bar">
+        <button trans="start-button" type="button" id="start-button" onClick="startButton()">Start Game</button>
+        <button trans="stop-button" type="button" id="stop-button" onClick="stopButton()">Stop Game</button>
+        <select title="Difficulty" id="difficulty-options" onChange="difficultyChange()">
+            <option trans="easy" value="easy">Easy</option>
+            <option trans="medium" value="medium">Medium</option>
+            <option trans="hard" value="hard">Hard</option>
+        </select>
+        <select Title="Lang" id="language-options" onChange="languageChange()">
+            <option value="en">English &#x1F1EC;&#x1F1E7;</option>
+            <option value="fi">Suomi &#x1F1EB;&#x1F1EE;</option>
+        </select>
+    </div>
     <div id="game-area">
         <div id="monster-container"></div>
+        <div id="credit-overlay">
+            <h1 trans="credits">Credits:</h1>
+            <p trans="author">Game made by: Aarni Akkala</p>
+            <p>
+                <span trans="sprites">Monster sprites: </span>
+                <a rel="noopener" href="https://opengameart.org/users/bevouliincom" 
+                    target="_blank">bevouliin.com</a>
+            </p>
+        </div>
+        <div id="help-overlay">
+            <h1 trans="help" >Help:</h1>
+            <p trans="help-text1">First the monsters give you a sequence which you need to remember.</p>
+            <p trans="help-text2">Then click on the monsters in the sequence that they gave you.</p>
+            <p trans="help-text3">If you get the sequence right, the monsters will give you a new sequence.</p>
+        </div>
     </div>
-    <div id="footer"></div>
+    <div id="footer">
+        <button trans="credits-button" type="button" id="credits" onClick="creditScreen()">Credits</button>
+        <div id="highscore">Score: 0/0</div>
+        <button trans="help-button" type="button" id="help" onClick="helpScreen()">Help</button>
+
+    </div>
     <script type="module" src="script.js"></script>
 </body>
 </html>

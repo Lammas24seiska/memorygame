@@ -1,0 +1,17 @@
+{
+    "title": "Muistipeli",
+    "start-button": "Aloita peli",
+    "stop-button": "Lopeta peli",
+    "easy": "Helppo",
+    "medium": "Keskitaso",
+    "hard": "Vaikea",
+    "credits": "Tekijät: ",
+    "author": "Pelin koodasi: Aarni Akkala",
+    "sprites": "Hirviökuvat: ",
+    "help": "Ohje: ",
+    "help-text1": "Ensin hirviöt antavat sinulle muistettavan järjestyksen.",
+    "help-text2": "Sitten sinun täytyy toistaa järjestys klikkaamalla hirviöitä oikeassa järjestyksessä.",
+    "help-text3": "Jos saat järjestyksen oikein, hirviöt antavat sinulle uuden järjestyksen.",
+    "credits-button": "Tekijät",
+    "help-button": "Ohje"
+}

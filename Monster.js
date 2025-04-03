@@ -1,7 +1,10 @@
 
 class Monster {
-  constructor(images, idx, diameter, monsterContainer) {
+  constructor(images, soundfile, idx, diameter, monsterContainer, clockTickInterval) {
     this.images = images;
+    this.soundfile = soundfile;
+    this.sound = null;
+    this.preloadSound();
     this.idx = idx;
     this.diameter = diameter;
     this.preloadedImages = [];
@@ -11,19 +14,29 @@ class Monster {
     this.animationFrame = 1;
     this.oldFrame = 0;
     this.burbComing = false;
+    this.clockTickInteval = clockTickInterval;
+    this.burbtimeout = null;
   }
   
   createElement(num, diameter, monsterContainer) {
     this.element = document.createElement("img");
     this.element.src = this.images[0];
     this.element.className = "monster";
+    this.element.draggable = false;
     this.element.id = num;
     this.element.alt = `Monster ${num}`;
     this.element.style.position = "absolute";
-    this.element.style.transition = "transform 0.2s ease-in-out, opacity 0.2s ease-in-out";
+    this.element.style.transition = "transform 0.1s ease-in-out, opacity 0.1s ease-in-out";
     this.element.style.width = diameter;
     this.element.style.height = diameter;
     monsterContainer.appendChild(this.element);
+  }
+
+  preloadSound() {
+      const audio = new Audio(this.soundfile);
+      audio.preload = "auto";
+      audio.load();
+      this.sound = audio;
   }
 
   preloadImages() {
@@ -50,18 +63,33 @@ class Monster {
   }
 
   burbEffects() {
+    if (this.burbtimeout) {
+      clearTimeout(this.burbtimeout);
+      this.burbtimeout = null;
+    }
+    // Play sound effect
+    if (this.burbComing === false) {
+      this.sound.currentTime = 0;
+      this.sound.play().catch(error => {
+        console.error("Error playing sound:", error);
+      });
+   }
     this.element.src = this.preloadedImages[2].src;
     this.element.style.transform = `scale(1.5)`;
+    this.burbtimeout = setTimeout(() => {
+      this.burbComing = false;
+      this.element.style.transform = `scale(1)`;
+      this.burbtimeout = null;
+    }, this.clockTickInteval);
 
   }
 
   animate() {
     const changeImage = () => {
       if (this.burbComing === true) {
-        this.burbEffects();
         this.burbComing = false;
+        this.burbEffects();
       } else {
-        this.element.style.transform = `scale(1)`;
         this.element.src = this.preloadedImages[this.animationFrame].src;
       }
       this.animationFrame = (this.oldFrame+ 1) % 2;
