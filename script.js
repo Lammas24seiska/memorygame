@@ -38,31 +38,91 @@ const game = {
     credits: false,
     help: false,
     highscore: 0,
+    nextStepSubscription: null,
+    translations: {},
+    gameArea: null,
+    highScoreElement: null,
+}
+
+const bt =  {
+    startButton: null,
+    pauseButton: null,
+    replayButton: null,
+    difficultyOptions: null,
+    languageOptions: null,
+    creditsButton: null,
+    helpButton: null,
+}
+
+const overlays = {
+    credits: null,
+    help: null,
+}
+
+function startGame() {
+    bt.startButton.setAttribute("trans", "stop-button");
+    bt.startButton.textContent = game.translations["stop-button"];
+    bt.startButton.setAttribute("col", "red");
+    game.sequence = [];
+    game.userSequence = [];
+    game.playingSequence = false;
+    game.gameArea.setAttribute("col", "playing");
+    game.help && helpScreen();
+    game.credits && creditScreen();
+    game.running = true;
+    gameLoop();
+}
+
+function stopGame() {
+    bt.replayButton.disabled = true;
+    bt.startButton.setAttribute("trans", "start-button");
+    bt.startButton.textContent = game.translations["start-button"];
+    bt.startButton.setAttribute("col", "green");
+    game.running = false;
+    game.playingSequence = false;
+    game.sequence = [];
+    game.userSequence = [];
+    game.gameArea.setAttribute("col", "notplaying");
+    if (game.nextStepSubscription) {
+        game.clock.unsubscribe(game.nextStepSubscription);
+        game.nextStepSubscription = null;
+    }
+}
+
+function pauseGame() {
+    game.clock.stop();
+}
+
+function continueGame() {
+    game.clock.start();
 }
 
 function startButton() {
-    game.running = true;
-    // Change backgorund of the game-area to white
-    const gameArea = document.getElementById("game-area");
-    gameArea.style.backgroundColor = "white";
-    gameLoop();
+    if (game.running) {
+        stopGame();
+    } else {
+        startGame();
+    }
 }
 window.startButton = startButton;
 
-function stopButton() {
-    const button = document.getElementById("stop-button");
+function pauseButton() {
     if (game.clock.on) {
-        button.textContent = "Continue";
-        game.clock.stop();
+        bt.pauseButton.setAttribute("trans", "continue-button");
+        bt.pauseButton.setAttribute("col", "green");
+        bt.pauseButton.textContent = game.translations["continue-button"];
+        pauseGame();
     } else {
-        button.textContent = "Stop game";
-        game.clock.start();
+        bt.pauseButton.setAttribute("trans", "pause-button");
+        bt.pauseButton.setAttribute("col", "red");
+        bt.pauseButton.textContent = game.translations["pause-button"];
+        continueGame();
     }
 }
-window.stopButton = stopButton;
+window.pauseButton = pauseButton;
 
 function difficultyChange() {
-    const difSetting = document.getElementById("difficulty-options").value;
+    const difSetting = bt.difficultyOptions.value;
     switch (difSetting) {
         case "easy":
             game.difficulty = 3;
@@ -76,26 +136,22 @@ function difficultyChange() {
         default:
             console.error("Invalid difficulty setting");
     }
+    stopGame();
     arrangeMonsters();
-
-    // Restart the game if it's already running
-    if (game.running) {
-        game.sequence = [];
-        game.userSequence = [];
-        game.playingSequence = false;
-        gameLoop();
-    }
 }
 window.difficultyChange = difficultyChange;
 
 function languageChange() {
     // get the selected language from the dropdown
-    const langSetting = document.getElementById("language-options").value;
+    const langSetting = bt.languageOptions.value;
     // open the language file
     const langFile = `./lang/${langSetting}.json`;
     fetch(langFile)
         .then(response => response.json())
         .then(translations => {
+            // Store thje translations in the game object
+            game.translations = translations;
+
             // update the text elements with the new language data
             document.querySelectorAll("[trans]").forEach((element) => {
                 //change the text of the element to the new language
@@ -108,15 +164,14 @@ function languageChange() {
 window.languageChange = languageChange;
 
 function creditScreen() {
-    const credits = document.getElementById("credit-overlay");
     if (!game.credits) {
         // Show the credits overlay
-        credits.style.display = "flex";
+        overlays.credits.style.display = "flex";
         game.credits = true;
         game.clock.stop();
     } else {
         // Hide the credits overlay
-        credits.style.display = "none";
+        overlays.credits.style.display = "none";
         game.credits = false;
         game.clock.start();
     }
@@ -124,15 +179,14 @@ function creditScreen() {
 window.creditScreen = creditScreen;
 
 function helpScreen() {
-    const help = document.getElementById("help-overlay");
     if (!game.help) {
         // Show the credits overlay
-        help.style.display = "flex";
+        overlays.help.style.display = "flex";
         game.help = true;
         game.clock.stop();
     } else {
         // Hide the credits overlay
-        help.style.display = "none";
+        overlays.help.style.display = "none";
         game.help = false;
         game.clock.start();
     }
@@ -153,7 +207,6 @@ function arrangeMonsters() {
         game.clock.unsubscribe(monster.animate.bind(monster));
     });
     game.monsters = [];
-    game.monsterContainer = document.getElementById("monster-container");
     for (let i = 0; i < game.difficulty; i++) {
         game.monsters.push(addMonster(i, game.monsterDiameter));
     }
@@ -180,19 +233,39 @@ function arrangeMonsters() {
 
 function updateHighscore(score) {
     game.highscore = Math.max(game.highscore, score);
-    const highscoreElement = document.getElementById("highscore");
-    highscoreElement.textContent = `Score: ${score}/${game.highscore}`;
+    game.highScoreElement.textContent = `${score}/${game.highscore}`;
 }
 
-function playSequence(callback) {
+function replaySequence() {
+    game.nextStepSubscription && game.clock.unsubscribe(game.nextStepSubscription);
+    game.nextStepSubscription = null;
+    playSequence();
+}
+window.replaySequence = replaySequence;
+
+function flashBackground(colorClass) {
+    game.gameArea.classList.remove('flash-correct', 'flash-incorrect');
+    void game.gameArea.offsetWidth; // Trigger reflow to restart animation
+    game.gameArea.classList.add(colorClass);
+    game.gameArea.addEventListener('animationend', () => {
+        game.gameArea.classList.remove(colorClass);
+    }, { once: true });
+}
+
+function playSequence() {
     let i = 0;
     let now = 0;
 
+    game.playingSequence = true;
+    bt.replayButton.disabled = true;
+
     function animateNextStep() {
-        console.log("next up", game.sequence[i]);
+        if (!game.running) {return;}
         if (i >= game.sequence.length) {
             game.clock.unsubscribe(animateNextStep);
-            if (callback)  callback();
+            game.nextStepSubscription = null;
+            game.playingSequence = false;
+            bt.replayButton.disabled = false;
             return;
         }
         now++;
@@ -200,19 +273,11 @@ function playSequence(callback) {
         if (now !== 0) {
             return;
         }
-        // Animate the next step in the sequence
         const monster= game.monsters[game.sequence[i]];
-
         monster.burb();
         i++;
     }
-
-    // Calculate next item in sequence
-    game.sequence.push(Math.floor(Math.random() * game.difficulty));
-
-
-    // 
-    game.clock.subscribe(animateNextStep, -1);
+    game.nextStepSubscription = game.clock.subscribe(animateNextStep, -1);
 }
 
 function monsterClick(monster) {
@@ -224,40 +289,33 @@ function monsterClick(monster) {
         game.userSequence = [];
         if (isCorrect) {
             // set background color to light green
-            const gameArea = document.getElementById("game-area");
-            gameArea.style.backgroundColor = "lightgreen";
+            flashBackground("flash-correct");
             updateHighscore(game.sequence.length);
             // wait for a short time before playing the next sequence
             setTimeout(() => {
-                gameArea.style.backgroundColor = "white";
+                game.gameArea.setAttribute("col", "playing");;
                 gameLoop();
             }, 1000);
         } else {
-            game.running = false;
-            // set background color to pink
-            const gameArea = document.getElementById("game-area");
-            gameArea.style.backgroundColor = "pink";
+            stopGame();
+            flashBackground("flash-incorrect");
             setTimeout(() => {
-                gameArea.style.backgroundColor = "";
+                game.gameArea.setAttribute("col", "notplaying");;
             }, 1000);
             // Update highscore and go to game start screen
             updateHighscore(game.sequence.length);
-            game.sequence = [];
-            game.playingSequence = false;
         }
     }
 }
 
 function gameLoop() {
-    
-    // Play sequence asynchronously and wait for sequence to finish
-    game.playingSequence = true;
-    playSequence( () => {
-        game.playingSequence = false;
-    });
+    game.sequence.push(Math.floor(Math.random() * game.difficulty));
+    playSequence();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    game.monsterContainer = document.getElementById("monster-container");
 
     game.clock = new Clock(game.clockInterval);
     arrangeMonsters();
@@ -270,6 +328,22 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+
+    game.highScoreElement = document.getElementById("highscore");
+
+    overlays.credits = document.getElementById("credit-overlay");
+    overlays.help = document.getElementById("help-overlay");
+
+    game.gameArea = document.getElementById("game-area"),
+
+    bt.replayButton = document.getElementById("replay-sequence"),
+    bt.startButton = document.getElementById("start-button"),
+    bt.pauseButton = document.getElementById("pause-button"),
+    bt.creditsButton = document.getElementById("credits-button"),
+    bt.helpButton = document.getElementById("help-button"),
+    bt.difficultyOptions = document.getElementById("difficulty-options"),
+    bt.languageOptions = document.getElementById("language-options"),
+    languageChange();
 
     // Start game clock and game loop
     game.clock.start();

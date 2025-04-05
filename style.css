@@ -26,7 +26,7 @@ body {
 #game-area {
     width: 100%;
     height: calc(100vh - 160px);
-    background-color: #979191;
+    background-color: #82f0ff;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
@@ -71,6 +71,57 @@ button {
 }
 button:hover {
     background-color: #45a049;
+}
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+button[col="red"] {
+    background-color: rgb(236, 69, 69);
+}
+button[col="red"]:hover {
+    background-color: rgb(168, 38, 38);
+}
+button[col="green"] {
+    background-color: #4CAF50;
+}
+button[col="green"]:hover {
+    background-color: darkgreen;
+}
+
+#game-area[col="playing"] {
+    background-color: white;
+}
+
+#game-area[col="notplaying"] {
+    background-color: #6b6262;
+}
+
+@keyframes flashBackground {
+    0% {
+        background-color: rgb(101, 221, 101); 
+    }
+    100% {
+        background-color: white; 
+    }
+}
+
+.flash-correct {
+    animation: flashBackground 1s step-end;
+}
+
+@keyframes flashIncorrect {
+    0% {
+        background-color: rgb(236, 133, 133); 
+    }
+    100% {
+        background-color: white; 
+    }
+}
+
+.flash-incorrect {
+    animation: flashIncorrect 1s step-end;
 }
 
 select {

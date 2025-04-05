@@ -8,8 +8,9 @@
 </head>
 <body>
     <div id="top-bar">
-        <button trans="start-button" type="button" id="start-button" onClick="startButton()">Start Game</button>
-        <button trans="stop-button" type="button" id="stop-button" onClick="stopButton()">Stop Game</button>
+        <button trans="start-button" type="button" id="start-button" onClick="startButton()" col="green">Start Game</button>
+        <button trans="pause-button" type="button" id="pause-button" onClick="pauseButton()" col="red">Pause Game</button>
+        <button trans="replay-sequence" type="button" id="replay-sequence" onClick="replaySequence()" disabled>Replay Sequence</button>
         <select title="Difficulty" id="difficulty-options" onChange="difficultyChange()">
             <option trans="easy" value="easy">Easy</option>
             <option trans="medium" value="medium">Medium</option>
@@ -20,7 +21,7 @@
             <option value="fi">Suomi &#x1F1EB;&#x1F1EE;</option>
         </select>
     </div>
-    <div id="game-area">
+    <div id="game-area" col="notplaying">
         <div id="monster-container"></div>
         <div id="credit-overlay">
             <h1 trans="credits">Credits:</h1>
@@ -39,9 +40,9 @@
         </div>
     </div>
     <div id="footer">
-        <button trans="credits-button" type="button" id="credits" onClick="creditScreen()">Credits</button>
-        <div id="highscore">Score: 0/0</div>
-        <button trans="help-button" type="button" id="help" onClick="helpScreen()">Help</button>
+        <button trans="credits-button" type="button" id="credits-button" onClick="creditScreen()">Credits</button>
+        <div id="highscore">0/0</div>
+        <button trans="help-button" type="button" id="help-button" onClick="helpScreen()">Help</button>
 
     </div>
     <script type="module" src="script.js"></script>
