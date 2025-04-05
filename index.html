@@ -7,6 +7,7 @@
     <title trans="title">Memory Game</title>
 </head>
 <body>
+
     <div id="top-bar">
         <button trans="start-button" type="button" id="start-button" onClick="startButton()" col="green">Start Game</button>
         <button trans="pause-button" type="button" id="pause-button" onClick="pauseButton()" col="red">Pause Game</button>
@@ -21,6 +22,7 @@
             <option value="fi">Suomi &#x1F1EB;&#x1F1EE;</option>
         </select>
     </div>
+
     <div id="game-area" col="notplaying">
         <div id="monster-container"></div>
         <div id="credit-overlay">
@@ -39,12 +41,14 @@
             <p trans="help-text3">If you get the sequence right, the monsters will give you a new sequence.</p>
         </div>
     </div>
+
     <div id="footer">
         <button trans="credits-button" type="button" id="credits-button" onClick="creditScreen()">Credits</button>
         <div id="highscore">0/0</div>
         <button trans="help-button" type="button" id="help-button" onClick="helpScreen()">Help</button>
 
     </div>
+    
     <script type="module" src="script.js"></script>
 </body>
 </html>

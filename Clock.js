@@ -1,5 +1,4 @@
-
-
+// Clock allows for synchronous execution of subscribed functions (animations) at a specified interval.
 class Clock {
     constructor(interval) {
         this.interval = interval; 
@@ -20,6 +19,7 @@ class Clock {
     }
 
     tick() {
+        // Call all subscribers in order of priority
         this.subscribers.sort((a, b) => b.priority - a.priority);
         this.subscribers.forEach(subscriber => subscriber.callback());
     }

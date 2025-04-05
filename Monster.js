@@ -1,4 +1,9 @@
-
+/*
+  * Monster.js
+  * This class represents a monster that is a sprite in the circle,
+  * Each item in the sequence has a monster that is responsible for displaying the item
+  * as an animation and a sound effect.
+*/ 
 class Monster {
   constructor(images, soundfile, idx, diameter, monsterContainer, clockTickInterval) {
     this.images = images;
@@ -47,7 +52,6 @@ class Monster {
     });
   }
 
-
   positionOnCircle(centerX, centerY, radius, angle) {
     const x = centerX + radius * Math.cos(angle) - this.element.clientWidth / 2;
     const y = centerY + radius * Math.sin(angle) - this.element.clientHeight / 2;
@@ -62,18 +66,19 @@ class Monster {
     this.element.offsetWidth;
   }
 
+  // Is called when the the monster needs to display animation and sound
+  // It is called when the monster is clicked or when it is the next monster in the sequence
   burbEffects() {
     if (this.burbtimeout) {
       clearTimeout(this.burbtimeout);
       this.burbtimeout = null;
     }
-    // Play sound effect
     if (this.burbComing === false) {
       this.sound.currentTime = 0;
       this.sound.play().catch(error => {
         console.error("Error playing sound:", error);
       });
-   }
+    }
     this.element.src = this.preloadedImages[2].src;
     this.element.style.transform = `scale(1.5)`;
     this.burbtimeout = setTimeout(() => {
@@ -84,6 +89,10 @@ class Monster {
 
   }
 
+  // Is called by the clock to animate the monster bobbing up and down
+  // It also handles the burbing when it is a part of the sequence display
+  // This is done to avoid the animation interfering with the burb effect
+  // and to synchronize the burb effect with the clock tick
   animate() {
     const changeImage = () => {
       if (this.burbComing === true) {
@@ -98,6 +107,7 @@ class Monster {
     requestAnimationFrame(changeImage);
   }
 
+  // Is called when the monster is clicked or when it is the next monster in the sequence
   burb(click=false) {
     if (click) {
       requestAnimationFrame(() => this.burbEffects());

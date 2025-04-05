@@ -23,15 +23,17 @@ const monsterSounds = [
     "./monsters/cyan.mp3",
 ]
 
+// Game objects that hold the game state and settings 
 const game = {
-    monsters: [],
-    monsterContainer: null,
+    // game setting defa
     difficulty: 3,
     monsterCircleRadius: 200,
     monsterDiameter: "200px",
-    clock: null,
-    sequence: [],
     clockInterval: 500,
+
+    // Game state variables
+    monsters: [],
+    sequence: [],
     userSequence: [],
     playingSequence: false,
     running: false,
@@ -40,10 +42,15 @@ const game = {
     highscore: 0,
     nextStepSubscription: null,
     translations: {},
+    clock: null,
+
+    // Game html elements
+    monsterContainer: null,
     gameArea: null,
     highScoreElement: null,
 }
 
+// Button html elements
 const bt =  {
     startButton: null,
     pauseButton: null,
@@ -54,35 +61,53 @@ const bt =  {
     helpButton: null,
 }
 
+// Overlay html elements
 const overlays = {
     credits: null,
     help: null,
 }
 
+
+// Game state change functions
+
 function startGame() {
+    // Handle startbutton state
     bt.startButton.setAttribute("trans", "stop-button");
     bt.startButton.textContent = game.translations["stop-button"];
     bt.startButton.setAttribute("col", "red");
+    
+    // Reset game state
     game.sequence = [];
     game.userSequence = [];
     game.playingSequence = false;
+    game.running = true;
+
+    // Reset game graphics and overlays
     game.gameArea.setAttribute("col", "playing");
     game.help && helpScreen();
     game.credits && creditScreen();
-    game.running = true;
+
+    // Start the game loop
     gameLoop();
 }
 
 function stopGame() {
+    // Handle startbutton state
     bt.replayButton.disabled = true;
     bt.startButton.setAttribute("trans", "start-button");
     bt.startButton.textContent = game.translations["start-button"];
     bt.startButton.setAttribute("col", "green");
+
+    // Reset game state
     game.running = false;
     game.playingSequence = false;
     game.sequence = [];
     game.userSequence = [];
+
+    // Reset game graphics
     game.gameArea.setAttribute("col", "notplaying");
+
+    // Remove sequence animation subscription from clock
     if (game.nextStepSubscription) {
         game.clock.unsubscribe(game.nextStepSubscription);
         game.nextStepSubscription = null;
@@ -90,12 +115,21 @@ function stopGame() {
 }
 
 function pauseGame() {
+    bt.pauseButton.setAttribute("trans", "continue-button");
+    bt.pauseButton.setAttribute("col", "green");
+    bt.pauseButton.textContent = game.translations["continue-button"];
     game.clock.stop();
 }
 
 function continueGame() {
+    bt.pauseButton.setAttribute("trans", "pause-button");
+    bt.pauseButton.setAttribute("col", "red");
+    bt.pauseButton.textContent = game.translations["pause-button"];
     game.clock.start();
 }
+
+
+// Game button functions
 
 function startButton() {
     if (game.running) {
@@ -108,19 +142,14 @@ window.startButton = startButton;
 
 function pauseButton() {
     if (game.clock.on) {
-        bt.pauseButton.setAttribute("trans", "continue-button");
-        bt.pauseButton.setAttribute("col", "green");
-        bt.pauseButton.textContent = game.translations["continue-button"];
         pauseGame();
     } else {
-        bt.pauseButton.setAttribute("trans", "pause-button");
-        bt.pauseButton.setAttribute("col", "red");
-        bt.pauseButton.textContent = game.translations["pause-button"];
         continueGame();
     }
 }
 window.pauseButton = pauseButton;
 
+// When difficulty is changed, stop the game and arrange the monsters again
 function difficultyChange() {
     const difSetting = bt.difficultyOptions.value;
     switch (difSetting) {
@@ -142,19 +171,17 @@ function difficultyChange() {
 window.difficultyChange = difficultyChange;
 
 function languageChange() {
-    // get the selected language from the dropdown
     const langSetting = bt.languageOptions.value;
-    // open the language file
+    
+    // Fetch the language file based on the selected language
     const langFile = `./lang/${langSetting}.json`;
     fetch(langFile)
         .then(response => response.json())
         .then(translations => {
-            // Store thje translations in the game object
+            // Store the translations in the game object
             game.translations = translations;
-
             // update the text elements with the new language data
             document.querySelectorAll("[trans]").forEach((element) => {
-                //change the text of the element to the new language
                 const key = element.getAttribute("trans");
                 element.textContent = translations[key] || element.textContent;
             })
@@ -162,6 +189,17 @@ function languageChange() {
         .catch(error => console.error('Error loading language file:', error));
 }
 window.languageChange = languageChange;
+
+function replaySequence() {
+    // Stop the current sequence and replay it
+    game.nextStepSubscription && game.clock.unsubscribe(game.nextStepSubscription);
+    game.nextStepSubscription = null;
+    playSequence();
+}
+window.replaySequence = replaySequence;
+
+
+// Game screen functions
 
 function creditScreen() {
     if (!game.credits) {
@@ -180,12 +218,12 @@ window.creditScreen = creditScreen;
 
 function helpScreen() {
     if (!game.help) {
-        // Show the credits overlay
+        // Show the help overlay
         overlays.help.style.display = "flex";
         game.help = true;
         game.clock.stop();
     } else {
-        // Hide the credits overlay
+        // Hide the help overlay
         overlays.help.style.display = "none";
         game.help = false;
         game.clock.start();
@@ -194,7 +232,10 @@ function helpScreen() {
 window.helpScreen = helpScreen;
 
 
+// Monster handling functions
+
 function addMonster(idx, diameter) {
+    // Add a new monster based on the circle index and monster
     const newMon = new Monster(monsterSprites[idx], monsterSounds[idx], idx, diameter, game.monsterContainer, game.clock.interval);
     game.clock.subscribe(newMon.animate.bind(newMon));
     return newMon;
@@ -207,10 +248,14 @@ function arrangeMonsters() {
         game.clock.unsubscribe(monster.animate.bind(monster));
     });
     game.monsters = [];
+
+    // Add new monsters based on the difficulty level
     for (let i = 0; i < game.difficulty; i++) {
         game.monsters.push(addMonster(i, game.monsterDiameter));
     }
     const {monsters, monsterContainer} = game;
+
+    // Calculate the center of the monsterCircle
     const centerX = monsterContainer.clientWidth / 2;
     const centerY = monsterContainer.clientHeight / 2;
 
@@ -222,8 +267,10 @@ function arrangeMonsters() {
     const monsterCircleRadius = Math.min(monsterContainer.clientWidth, monsterContainer.clientHeight) / 2 - parseInt(monsterDiameter);
     game.monsterCircleRadius = monsterCircleRadius;
 
+    // Calculate the angle step (angle difference between monsters) based on the number of monsters
     const angleStep = (2 * Math.PI) / monsters.length;
 
+    // Position each monster on the circle
     monsters.forEach((monster, index) => {
         monster.changeDiameter(monsterDiameter);
         const angle = index * angleStep;
@@ -231,19 +278,47 @@ function arrangeMonsters() {
     });
 }
 
+function monsterClick(monster) {
+    // Add the clicked monster to the the quessed sequence and display its animation
+    game.userSequence.push(monster.idx);
+    monster.burb(true);
+
+    // If the sequence is complete, check if the user sequence is correct
+    if (game.userSequence.length >= game.sequence.length) {
+        // Check if the user sequence is correct
+        const isCorrect = game.userSequence.every((idx, index) => idx === game.sequence[index]);
+        game.userSequence = [];
+        if (isCorrect) {
+            // Update graphics
+            flashBackground("flash-correct");
+            updateHighscore(game.sequence.length);
+            
+            // Wait for a second before starting the next sequence
+            setTimeout(() => {
+                game.gameArea.setAttribute("col", "playing");;
+                gameLoop();
+            }, 1000);
+        } else {
+            // Handle ending the game and showing that sequence is incorrect
+            stopGame();
+            flashBackground("flash-incorrect");
+            setTimeout(() => {
+                game.gameArea.setAttribute("col", "notplaying");;
+            }, 1000);
+            updateHighscore(game.sequence.length);
+        }
+    }
+}
+
+// Game event functions
+
 function updateHighscore(score) {
     game.highscore = Math.max(game.highscore, score);
     game.highScoreElement.textContent = `${score}/${game.highscore}`;
 }
 
-function replaySequence() {
-    game.nextStepSubscription && game.clock.unsubscribe(game.nextStepSubscription);
-    game.nextStepSubscription = null;
-    playSequence();
-}
-window.replaySequence = replaySequence;
-
 function flashBackground(colorClass) {
+    // Display a flash animation on the game area background
     game.gameArea.classList.remove('flash-correct', 'flash-incorrect');
     void game.gameArea.offsetWidth; // Trigger reflow to restart animation
     game.gameArea.classList.add(colorClass);
@@ -253,12 +328,7 @@ function flashBackground(colorClass) {
 }
 
 function playSequence() {
-    let i = 0;
-    let now = 0;
-
-    game.playingSequence = true;
-    bt.replayButton.disabled = true;
-
+    // function that is called by the clock to animate the next step in the sequence
     function animateNextStep() {
         if (!game.running) {return;}
         if (i >= game.sequence.length) {
@@ -268,58 +338,39 @@ function playSequence() {
             bt.replayButton.disabled = false;
             return;
         }
-        now++;
-        now = now % 2;
-        if (now !== 0) {
+        step++;
+        step = step % 2;
+        if (step !== 0) {
             return;
         }
         const monster= game.monsters[game.sequence[i]];
         monster.burb();
         i++;
     }
-    game.nextStepSubscription = game.clock.subscribe(animateNextStep, -1);
-}
+    let i = 0; // Sequence index
+    let step = 0; // Step index for animation (to skip every other frame)
 
-function monsterClick(monster) {
-    game.userSequence.push(monster.idx);
-    monster.burb(true);
-    if (game.userSequence.length >= game.sequence.length) {
-        // Check if the user sequence is correct
-        const isCorrect = game.userSequence.every((idx, index) => idx === game.sequence[index]);
-        game.userSequence = [];
-        if (isCorrect) {
-            // set background color to light green
-            flashBackground("flash-correct");
-            updateHighscore(game.sequence.length);
-            // wait for a short time before playing the next sequence
-            setTimeout(() => {
-                game.gameArea.setAttribute("col", "playing");;
-                gameLoop();
-            }, 1000);
-        } else {
-            stopGame();
-            flashBackground("flash-incorrect");
-            setTimeout(() => {
-                game.gameArea.setAttribute("col", "notplaying");;
-            }, 1000);
-            // Update highscore and go to game start screen
-            updateHighscore(game.sequence.length);
-        }
-    }
+    game.playingSequence = true;
+    bt.replayButton.disabled = true;
+
+    // Add the animation function to the clock (Priority -1 to run before the monster animation)
+    game.nextStepSubscription = game.clock.subscribe(animateNextStep, -1); 
 }
 
 function gameLoop() {
+    // Game loop calculates next monster in sequence and displays the sequence of monsters
     game.sequence.push(Math.floor(Math.random() * game.difficulty));
     playSequence();
 }
 
+
+// Initialize the game when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
 
+    // Adding monsters and monster state objects
     game.monsterContainer = document.getElementById("monster-container");
-
     game.clock = new Clock(game.clockInterval);
     arrangeMonsters();
-
     game.monsterContainer.addEventListener("click", (event) => {
         if (!game.playingSequence && event.target && event.target.className === "monster") {
             const monster = game.monsters.find(m => m.element === event.target);
@@ -329,13 +380,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Game elements
     game.highScoreElement = document.getElementById("highscore");
+    game.gameArea = document.getElementById("game-area"),
 
+    // Overlay elements
     overlays.credits = document.getElementById("credit-overlay");
     overlays.help = document.getElementById("help-overlay");
 
-    game.gameArea = document.getElementById("game-area"),
-
+    // Button elements
     bt.replayButton = document.getElementById("replay-sequence"),
     bt.startButton = document.getElementById("start-button"),
     bt.pauseButton = document.getElementById("pause-button"),
@@ -343,12 +396,16 @@ document.addEventListener("DOMContentLoaded", () => {
     bt.helpButton = document.getElementById("help-button"),
     bt.difficultyOptions = document.getElementById("difficulty-options"),
     bt.languageOptions = document.getElementById("language-options"),
+
+    // Trigger language change to remove default text
     languageChange();
 
-    // Start game clock and game loop
+    // Start the game clock that handles the monster animation
     game.clock.start();
 });
 
+// Window resize event to adjust monster positions and sizes
+// This function is throttled to avoid excessive calls during resize events
 window.addEventListener('resize', throttle(function() {
     arrangeMonsters();
 }, 200)); 
